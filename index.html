@@ -120,41 +120,68 @@ for (let i = 1; i <= 42; i++) {
 
 
     // Fungsi untuk membuat daftar
-    function createList() {
-        const listContainer = document.getElementById('list-container');
-        const saldoInput = document.getElementById('saldo');
-
-        data.forEach((item, index) => {
-            const listItem = document.createElement('div');
-            listItem.className = 'checkbox-container';
-
-            const input = document.createElement('input');
-            input.type = 'checkbox';
-            input.id = `day-${index}`;
-            listItem.appendChild(input);
-
-            const label = document.createElement('label');
-            label.htmlFor = `day-${index}`;
-            label.textContent = `${item.day} - Pergi: ${item.pergi}, Pulang: ${item.pulang}`;
-            listItem.appendChild(label);
-
-            listContainer.appendChild(listItem);
-
-            // Tambahkan event listener untuk menambahkan atau mengurangi saldo saat checkbox dicentang atau tidak
-            input.addEventListener('change', function() {
-                if (this.checked) {
-                    saldoInput.value = parseFloat(saldoInput.value) - (item.pergi + item.pulang);
-                } else {
-                    saldoInput.value = parseFloat(saldoInput.value) + (item.pergi + item.pulang);
-                }
-                // Tambahkan atau hapus garis coret saat checkbox dicentang atau tidak
-                label.classList.toggle('line-through');
-            });
-        });
+    // Fungsi untuk membuat daftar
+function createList() {
+    const listContainer = document.getElementById('list-container');
+    const saldoInput = document.getElementById('saldo');
+    
+    // Memuat saldo terakhir dari local storage, jika ada
+    const lastSaldo = localStorage.getItem('saldo');
+    if (lastSaldo !== null) {
+        saldoInput.value = lastSaldo;
     }
 
-    // Panggil fungsi untuk membuat daftar saat halaman dimuat
-    createList();
+    data.forEach((item, index) => {
+        const listItem = document.createElement('div');
+        listItem.className = 'checkbox-container';
+
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.id = `day-${index}`;
+        listItem.appendChild(input);
+
+        const label = document.createElement('label');
+        label.htmlFor = `day-${index}`;
+        label.textContent = `${item.day} - Pergi: ${item.pergi}, Pulang: ${item.pulang}`;
+        listItem.appendChild(label);
+
+        listContainer.appendChild(listItem);
+
+        // Memuat status checkbox terakhir dari local storage, jika ada
+        const lastChecked = localStorage.getItem(`day-${index}`);
+        if (lastChecked !== null) {
+            input.checked = JSON.parse(lastChecked);
+            if (input.checked && !localStorage.getItem(`applied-${index}`)) {
+                saldoInput.value = parseFloat(saldoInput.value) - (item.pergi + item.pulang);
+                label.classList.add('line-through');
+                // Tandai bahwa pengurangan saldo telah diterapkan untuk hari ini
+                localStorage.setItem(`applied-${index}`, true);
+            }
+        }
+
+        // Tambahkan event listener untuk menambahkan atau mengurangi saldo saat checkbox dicentang atau tidak
+        input.addEventListener('change', function() {
+            if (this.checked) {
+                saldoInput.value = parseFloat(saldoInput.value) - (item.pergi + item.pulang);
+            } else {
+                saldoInput.value = parseFloat(saldoInput.value) + (item.pergi + item.pulang);
+            }
+            // Tambahkan atau hapus garis coret saat checkbox dicentang atau tidak
+            label.classList.toggle('line-through');
+
+            // Simpan status ceklis ke local storage
+            localStorage.setItem(`day-${index}`, this.checked);
+            // Simpan informasi apakah pengurangan saldo telah diterapkan untuk hari ini
+            localStorage.setItem(`applied-${index}`, this.checked);
+            // Perbarui saldo terakhir ke local storage setelah setiap perubahan
+            localStorage.setItem('saldo', saldoInput.value);
+        });
+    });
+}
+
+// Panggil fungsi untuk membuat daftar saat halaman dimuat
+createList();
+
 </script>
 
 </body>
