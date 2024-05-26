@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daftar Pengeluaran Kereta</title>
+<style>
+   body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+h2 {
+    color: #333;
+    text-align: center;
+    margin-top: 20px;
+}
+
+#list-container {
+    max-width: 600px;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    user-select: none;
+}
+
+.checkbox-container input[type="checkbox"] {
+    display: none;
+}
+
+.checkbox-container label {
+    flex: 1;
+    cursor: pointer;
+    position: relative;
+    padding-left: 25px;
+    font-size: 16px;
+    color: #333;
+    line-height: 1.6;
+}
+
+.checkbox-container label:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background-color: #fff;
+}
+
+.checkbox-container input[type="checkbox"]:checked + label:before {
+    content: '\2714'; /* checkmark character */
+    color: #2196F3;
+    font-size: 16px;
+    line-height: 16px;
+    text-align: center;
+}
+
+.checkbox-container input[type="checkbox"]:disabled + label:before {
+    content: '\2718'; /* ballot X character */
+    color: #ccc;
+}
+
+.line-through {
+    text-decoration: line-through;
+}
+.centered {
+    text-align: center;
+}
+
+.centered label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.centered input[type="number"] {
+    width: 200px; /* Atur lebar input sesuai kebutuhan */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+</style>
+</head>
+<body>
+
+<h2>Daftar Pengeluaran Kereta PKL</h2>
+
+<div class="centered">
+    <label for="saldo">Saldo Sekarang: </label>
+    <input type="number" id="saldo" value="0" min="0">
+</div>
+
+<div id="list-container">
+    <!-- Daftar akan ditambahkan di sini oleh JavaScript -->
+</div>
+
+<script>
+    // Data uang yang dikeluarkan
+const data = [];
+
+for (let i = 1; i <= 42; i++) {
+    data.push({ day: `Hari ${i}`, pergi: 6000, pulang: 3000 });
+}
+
+
+    // Fungsi untuk membuat daftar
+    function createList() {
+        const listContainer = document.getElementById('list-container');
+        const saldoInput = document.getElementById('saldo');
+
+        data.forEach((item, index) => {
+            const listItem = document.createElement('div');
+            listItem.className = 'checkbox-container';
+
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.id = `day-${index}`;
+            listItem.appendChild(input);
+
+            const label = document.createElement('label');
+            label.htmlFor = `day-${index}`;
+            label.textContent = `${item.day} - Pergi: ${item.pergi}, Pulang: ${item.pulang}`;
+            listItem.appendChild(label);
+
+            listContainer.appendChild(listItem);
+
+            // Tambahkan event listener untuk menambahkan atau mengurangi saldo saat checkbox dicentang atau tidak
+            input.addEventListener('change', function() {
+                if (this.checked) {
+                    saldoInput.value = parseFloat(saldoInput.value) - (item.pergi + item.pulang);
+                } else {
+                    saldoInput.value = parseFloat(saldoInput.value) + (item.pergi + item.pulang);
+                }
+                // Tambahkan atau hapus garis coret saat checkbox dicentang atau tidak
+                label.classList.toggle('line-through');
+            });
+        });
+    }
+
+    // Panggil fungsi untuk membuat daftar saat halaman dimuat
+    createList();
+</script>
+
+</body>
+</html>
